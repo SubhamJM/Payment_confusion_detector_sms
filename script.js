@@ -1,8 +1,9 @@
 /**
  * THE CLARITY GUARDIAN - CONSENT OPTIMIZED
- * 1. Persistent Circular Launcher (Always visible).
- * 2. 15-second confusion trigger shows a "Click here" tooltip over the button.
- * 3. Expanded Puter.js AI Chatbot (Gemini-powered).
+ * Features: 
+ * 1. Persistent Circular Launcher & 15s "Confusion" Tooltip.
+ * 2. Expanded Chat Window (384px x 500px).
+ * 3. Puter.js AI with "..." loading indicator.
  */
 
 // --- GLOBAL STATE ---
@@ -102,8 +103,6 @@ function checkCalibrationStatus() {
     document.getElementById("calibration-overlay").classList.add("hidden");
     document.getElementById("status-dot").style.backgroundColor = "green";
     document.querySelector("#tracking-status span").innerText = "TRACKING ACTIVE";
-    
-    // Create the persistent button as soon as calibration is done
     createPersistentChatLauncher();
   }
 }
@@ -150,7 +149,6 @@ function triggerSmartResponse(zoneId) {
   showCustomPopup(zoneId, element);
 
   const sustainedTime = (Date.now() - interventionStartTime) / 1000;
-  // Trigger the "Click Here" tooltip after 15 seconds of confusion
   if (sustainedTime > 15 && !chatEscalationDismissed) {
     showLauncherTooltip();
   }
@@ -185,60 +183,47 @@ function dismissPopup(zoneId, popupElement) {
 // --- CHATBOT UI & PUTER.JS ---
 
 function createPersistentChatLauncher() {
-    if (document.getElementById("chat-launcher")) return;
-    
-    const launcher = document.createElement("button");
-    launcher.id = "chat-launcher";
-    launcher.className = "fixed bottom-6 right-6 w-14 h-14 bg-indigo-600 text-white rounded-full shadow-2xl z-[10002] flex items-center justify-center hover:bg-indigo-700 transition-all transform hover:scale-110 active:scale-95";
-    launcher.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-        </svg>
-    `;
-    launcher.onclick = toggleChatWindow;
-    document.body.appendChild(launcher);
+  if (document.getElementById("chat-launcher")) return;
+  const launcher = document.createElement("button");
+  launcher.id = "chat-launcher";
+  launcher.className = "fixed bottom-6 right-6 w-14 h-14 bg-indigo-600 text-white rounded-full shadow-2xl z-[10002] flex items-center justify-center hover:bg-indigo-700 transition-all transform hover:scale-110 active:scale-95";
+  launcher.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>`;
+  launcher.onclick = toggleChatWindow;
+  document.body.appendChild(launcher);
 }
 
 function showLauncherTooltip() {
-    if (document.getElementById("launcher-tooltip") || document.getElementById("puter-chat-window")) return;
-    
-    const tooltip = document.createElement("div");
-    tooltip.id = "launcher-tooltip";
-    // Positioned right above the circular button
-    tooltip.className = "fixed bottom-24 right-6 bg-white text-indigo-900 border-2 border-indigo-600 px-4 py-2 rounded-xl shadow-xl z-[10003] font-bold text-xs animate-bounce cursor-pointer";
-    tooltip.innerText = "Click here for customer support 🤝";
-    tooltip.onclick = toggleChatWindow;
-    document.body.appendChild(tooltip);
+  if (document.getElementById("launcher-tooltip") || document.getElementById("puter-chat-window")) return;
+  const tooltip = document.createElement("div");
+  tooltip.id = "launcher-tooltip";
+  tooltip.className = "fixed bottom-24 right-6 bg-white text-indigo-900 border-2 border-indigo-600 px-4 py-2 rounded-xl shadow-xl z-[10003] font-bold text-xs animate-bounce cursor-pointer";
+  tooltip.innerText = "Click here for customer support 🤝";
+  tooltip.onclick = toggleChatWindow;
+  document.body.appendChild(tooltip);
 }
 
 function toggleChatWindow() {
-    const existingChat = document.getElementById("puter-chat-window");
-    const tooltip = document.getElementById("launcher-tooltip");
-    
-    if (tooltip) tooltip.remove(); // Remove tooltip if user clicks
-
-    if (existingChat) {
-        existingChat.remove();
-    } else {
-        initPuterChat();
-    }
+  const existingChat = document.getElementById("puter-chat-window");
+  const tooltip = document.getElementById("launcher-tooltip");
+  if (tooltip) tooltip.remove();
+  if (existingChat) { existingChat.remove(); } else { initPuterChat(); }
 }
 
 async function initPuterChat() {
-    const chatWindow = document.createElement("div");
-    chatWindow.id = "puter-chat-window";
-    chatWindow.className = "fixed bottom-24 right-6 w-96 h-[500px] bg-white rounded-2xl shadow-2xl border border-slate-200 z-[10001] flex flex-col overflow-hidden font-sans animate-fade-in";
-    chatWindow.innerHTML = `
+  const chatWindow = document.createElement("div");
+  chatWindow.id = "puter-chat-window";
+  chatWindow.className = "fixed bottom-24 right-6 w-96 h-[500px] bg-white rounded-2xl shadow-2xl border border-slate-200 z-[10001] flex flex-col overflow-hidden font-sans animate-fade-in";
+  chatWindow.innerHTML = `
         <div class="bg-indigo-600 p-5 text-white flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <div class="w-3 h-3 bg-emerald-400 rounded-full animate-pulse"></div>
-                <span class="text-sm font-bold uppercase tracking-widest">Finnovate Assistant</span>
+                <span class="text-sm font-bold uppercase tracking-widest">Financial Guru</span>
             </div>
             <button onclick="toggleChatWindow()" class="text-white hover:text-indigo-200 text-xl font-light">✕</button>
         </div>
         <div id="chat-messages" class="flex-1 overflow-y-auto p-5 space-y-4 bg-slate-50 text-xs">
             <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm max-w-[85%]">
-                Hello! I noticed you might need a hand. I can help explain our fees, shipping, or privacy policy. How can I help?
+                Hello, Financial Guru Here 😄!! I noticed you might need some help. How can I help you?
             </div>
         </div>
         <div class="p-4 bg-white border-t flex gap-2">
@@ -246,41 +231,55 @@ async function initPuterChat() {
             <button id="send-btn" class="bg-indigo-600 text-white px-5 py-2 rounded-xl text-xs font-bold hover:bg-indigo-700 transition-all">Send</button>
         </div>
     `;
-    document.body.appendChild(chatWindow);
+  document.body.appendChild(chatWindow);
 
-    const input = document.getElementById("chat-input");
-    const sendBtn = document.getElementById("send-btn");
-    const msgContainer = document.getElementById("chat-messages");
+  const input = document.getElementById("chat-input");
+  const sendBtn = document.getElementById("send-btn");
+  const msgContainer = document.getElementById("chat-messages");
 
-    const sendMessage = async () => {
-        const userText = input.value.trim();
-        if(!userText) return;
+  const sendMessage = async () => {
+    const userText = input.value.trim();
+    if (!userText) return;
 
-        msgContainer.innerHTML += `<div class="bg-indigo-600 text-white p-3 rounded-2xl self-end ml-auto max-w-[85%] shadow-sm">${userText}</div>`;
-        input.value = "";
-        msgContainer.scrollTop = msgContainer.scrollHeight;
+    // 1. Display User Message
+    msgContainer.innerHTML += `<div class="bg-indigo-600 text-white p-3 rounded-2xl self-end ml-auto max-w-[85%] shadow-sm">${userText}</div>`;
+    input.value = "";
 
-        try {
-            const response = await puter.ai.chat(
-                `System: Support for "FinnovateMarket". Context: Checkout for Clarity Guardian Pro ($89.99). Fees: Surge ($4.50), Compliance ($3.86), Carbon ($0.75). User Message: ${userText}`
-            );
-            msgContainer.innerHTML += `<div class="bg-white p-3 rounded-2xl border border-slate-200 mr-auto max-w-[85%] shadow-sm">${response}</div>`;
-            msgContainer.scrollTop = msgContainer.scrollHeight;
-        } catch (err) {
-            msgContainer.innerHTML += `<div class="text-red-500 text-[10px] text-center italic">Connection error.</div>`;
-        }
-    };
+    // 2. Create and Display "..." Loading Indicator
+    const loadingId = "ai-loading-" + Date.now();
+    msgContainer.innerHTML += `<div id="${loadingId}" class="bg-white p-3 rounded-2xl border border-slate-200 mr-auto max-w-[85%] shadow-sm italic text-gray-400">...</div>`;
+    msgContainer.scrollTop = msgContainer.scrollHeight;
 
-    sendBtn.onclick = sendMessage;
-    input.onkeypress = (e) => { if(e.key === 'Enter') sendMessage(); };
-    input.focus();
+    try {
+      // 3. Puter AI request
+      const response = await puter.ai.chat(
+        `System: Support for "FinnovateMarket". Context: Checkout for Clarity Guardian Pro ($89.99). Fees: Surge ($4.50), Compliance ($3.86), Carbon Offset ($0.75). User Message: ${userText}`
+      );
+
+      // 4. Replace Loading Indicator with Response
+      const loadingEl = document.getElementById(loadingId);
+      if (loadingEl) {
+        loadingEl.innerText = response;
+        loadingEl.classList.remove("italic", "text-gray-400");
+        loadingEl.classList.add("text-slate-900");
+      }
+    } catch (err) {
+      const loadingEl = document.getElementById(loadingId);
+      if (loadingEl) loadingEl.innerText = "Error: Could not connect to assistant.";
+    }
+    msgContainer.scrollTop = msgContainer.scrollHeight;
+  };
+
+  sendBtn.onclick = sendMessage;
+  input.onkeypress = (e) => { if (e.key === 'Enter') sendMessage(); };
+  input.focus();
 }
 
 // --- PRIVACY & CONSENT ---
 function declinePrivacy() {
   document.getElementById("privacy-modal").classList.add("hidden");
   document.getElementById("calibration-overlay").classList.add("hidden");
-  createPersistentChatLauncher(); // Still show the button even if eye tracking is off
+  createPersistentChatLauncher();
 }
 
 function acceptPrivacy() {
