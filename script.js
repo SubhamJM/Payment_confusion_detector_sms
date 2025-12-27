@@ -1,9 +1,9 @@
 /**
- * THE CLARITY GUARDIAN - CONSENT OPTIMIZED
+ * THE CLARITY GUARDIAN - GEMINI API INTEGRATED
  * Features: 
  * 1. Persistent Circular Launcher & 15s "Confusion" Tooltip.
  * 2. Expanded Chat Window (384px x 500px).
- * 3. Puter.js AI with "..." loading indicator.
+ * 3. Google Gemini API integration with "..." loading indicator.
  */
 
 // --- GLOBAL STATE ---
@@ -11,6 +11,10 @@ let isCalibrated = false;
 let isPaused = false;
 let calibrationPoints = {};
 const CLICKS_PER_POINT = 5;
+
+// Gemini Configuration
+const GEMINI_API_KEY = "AIzaSyBti21jpFtvVRECm6WJTgU3nezO1C8cioI";
+const GEMINI_MODEL = "gemini-2.5-flash-lite";
 
 let lastRawGaze = { x: 0, y: 0 };
 let highPassGaze = { x: 0, y: 0 };
@@ -180,7 +184,7 @@ function dismissPopup(zoneId, popupElement) {
   popupElement.remove();
 }
 
-// --- CHATBOT UI & PUTER.JS ---
+// --- CHATBOT UI & GEMINI API ---
 
 function createPersistentChatLauncher() {
   if (document.getElementById("chat-launcher")) return;
@@ -206,10 +210,10 @@ function toggleChatWindow() {
   const existingChat = document.getElementById("puter-chat-window");
   const tooltip = document.getElementById("launcher-tooltip");
   if (tooltip) tooltip.remove();
-  if (existingChat) { existingChat.remove(); } else { initPuterChat(); }
+  if (existingChat) { existingChat.remove(); } else { initChat(); }
 }
 
-async function initPuterChat() {
+async function initChat() {
   const chatWindow = document.createElement("div");
   chatWindow.id = "puter-chat-window";
   chatWindow.className = "fixed bottom-24 right-6 w-96 h-[500px] bg-white rounded-2xl shadow-2xl border border-slate-200 z-[10001] flex flex-col overflow-hidden font-sans animate-fade-in";
@@ -245,25 +249,44 @@ async function initPuterChat() {
     msgContainer.innerHTML += `<div class="bg-indigo-600 text-white p-3 rounded-2xl self-end ml-auto max-w-[85%] shadow-sm">${userText}</div>`;
     input.value = "";
 
-    // 2. Create and Display "..." Loading Indicator
+    // 2. Create and Display Loading Indicator
     const loadingId = "ai-loading-" + Date.now();
     msgContainer.innerHTML += `<div id="${loadingId}" class="bg-white p-3 rounded-2xl border border-slate-200 mr-auto max-w-[85%] shadow-sm italic text-gray-400">...</div>`;
     msgContainer.scrollTop = msgContainer.scrollHeight;
 
     try {
-      // 3. Puter AI request
-      const response = await puter.ai.chat(
-        `System: Support for "FinnovateMarket". Context: Checkout for Clarity Guardian Pro ($89.99). Fees: Surge ($4.50), Compliance ($3.86), Carbon Offset ($0.75). User Message: ${userText}`
-      );
+      // 3. Prepare Gemini API Request
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
 
-      // 4. Replace Loading Indicator with Response
+      const payload = {
+        contents: [{
+          parts: [{
+            text: `System: Support for "FinnovateMarket". Context: Checkout for Clarity Guardian Pro ($89.99). Fees: Surge ($4.50), Compliance ($3.86), Carbon Offset ($0.75). User Message: ${userText}`
+          }]
+        }]
+      };
+
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json();
+
+      // 4. Handle Response and Update UI
       const loadingEl = document.getElementById(loadingId);
       if (loadingEl) {
-        loadingEl.innerText = response;
-        loadingEl.classList.remove("italic", "text-gray-400");
-        loadingEl.classList.add("text-slate-900");
+        if (data.candidates && data.candidates[0].content.parts[0].text) {
+          loadingEl.innerText = data.candidates[0].content.parts[0].text;
+          loadingEl.classList.remove("italic", "text-gray-400");
+          loadingEl.classList.add("text-slate-900");
+        } else {
+          throw new Error("Invalid response format");
+        }
       }
     } catch (err) {
+      console.error("Gemini API Error:", err);
       const loadingEl = document.getElementById(loadingId);
       if (loadingEl) loadingEl.innerText = "Error: Could not connect to assistant.";
     }
