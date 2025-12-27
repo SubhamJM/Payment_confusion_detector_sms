@@ -49,7 +49,6 @@ let zoneMetrics = {
 // --- CORE INITIALIZATION (CONSENT-BASED) ---
 async function initEyeTracker() {
   try {
-    // Start WebGazer only after this function is called
     await webgazer
       .setGazeListener(function (data, elapsedTime) {
         if (data == null || !isCalibrated || isPaused) return;
@@ -65,8 +64,6 @@ async function initEyeTracker() {
       .begin();
 
     webgazer.applyKalmanFilter(true);
-
-    // Stealth mode: Remove video preview
     webgazer.showVideoPreview(false).showPredictionPoints(true);
 
     window.addEventListener("click", (e) => {
@@ -176,12 +173,14 @@ function checkConfusionZones(x, y, saccadeStrength) {
 }
 
 function triggerSmartResponse(zoneId) {
-  if (dismissedPopups.has(zoneId)) return; //
+  if (dismissedPopups.has(zoneId)) return;
 
   const element = document.getElementById(zoneId);
   if (!element) return;
 
   if (!interventionStartTime) interventionStartTime = Date.now();
+
+  // Highlight the container (Yellow state)
   element.classList.add("confusion-highlight");
 
   showCustomPopup(zoneId, element);
@@ -225,7 +224,6 @@ function showCustomPopup(zoneId, anchorElement) {
   popup.className = `custom-popup absolute z-[100] bg-white border-l-4 border-${content.color}-500 p-4 shadow-2xl rounded-r-xl w-64 text-left`;
   popup.setAttribute("data-zone", zoneId);
 
-  // Position Amount Box popup below, others to the side
   if (content.align === "bottom") {
     popup.style.top = "100%";
     popup.style.left = "0px";
@@ -245,9 +243,20 @@ function showCustomPopup(zoneId, anchorElement) {
   anchorElement.appendChild(popup);
 }
 
-function dismissPopup(zoneId, element) {
+/**
+ * UPDATED: Returns the box to its previous state (white) when dismissed.
+ */
+function dismissPopup(zoneId, popupElement) {
   dismissedPopups.add(zoneId); // Never show again
-  element.remove();
+
+  // Find the parent container that was highlighted
+  const zoneElement = document.getElementById(zoneId);
+  if (zoneElement) {
+    // Remove the yellow highlight class so it returns to white
+    zoneElement.classList.remove("confusion-highlight");
+  }
+
+  popupElement.remove(); // Remove the actual popup box
 }
 
 function showChatEscalation() {
@@ -270,34 +279,24 @@ function dismissChat(element) {
 }
 
 // --- PRIVACY & CONSENT ---
-
-/**
- * NEW: Handles declining tracking.
- * Closes overlays and ensures status remains INACTIVE.
- */
 function declinePrivacy() {
   document.getElementById("privacy-modal").classList.add("hidden");
   document.getElementById("calibration-overlay").classList.add("hidden");
-
-  // Explicitly set status to inactive
   const statusDot = document.getElementById("status-dot");
   const statusSpan = document.querySelector("#tracking-status span");
   if (statusDot) statusDot.style.backgroundColor = "red";
   if (statusSpan) statusSpan.innerText = "EYE-TRACKING INACTIVE";
-
-  isCalibrated = false; // Ensure tracking logic never fires
+  isCalibrated = false;
 }
 
 function acceptPrivacy() {
   document.getElementById("privacy-modal").classList.add("hidden");
-  initEyeTracker(); // Start capture ONLY on consent
+  initEyeTracker();
   startCalibration();
 }
 
 function toggleTracking() {
-  // Logic check: only allow toggle if tracking was actually calibrated
   if (!isCalibrated) return;
-
   const statusDot = document.getElementById("status-dot");
   if (isPaused) {
     webgazer.resume();
