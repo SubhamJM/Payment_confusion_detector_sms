@@ -13,7 +13,7 @@ let calibrationPoints = {};
 const CLICKS_PER_POINT = 5;
 
 // Gemini Configuration
-const GEMINI_API_KEY = "AIzaSyBti21jpFtvVRECm6WJTgU3nezO1C8cioI";
+const GEMINI_API_KEY = "AIzaSyB4N720BULuGmRFEhfYACR7O6NikEKASzA";
 const GEMINI_MODEL = "gemini-2.5-flash-lite";
 
 let lastRawGaze = { x: 0, y: 0 };
