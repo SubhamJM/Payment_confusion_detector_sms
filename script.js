@@ -270,6 +270,24 @@ function dismissChat(element) {
 }
 
 // --- PRIVACY & CONSENT ---
+
+/**
+ * NEW: Handles declining tracking.
+ * Closes overlays and ensures status remains INACTIVE.
+ */
+function declinePrivacy() {
+  document.getElementById("privacy-modal").classList.add("hidden");
+  document.getElementById("calibration-overlay").classList.add("hidden");
+
+  // Explicitly set status to inactive
+  const statusDot = document.getElementById("status-dot");
+  const statusSpan = document.querySelector("#tracking-status span");
+  if (statusDot) statusDot.style.backgroundColor = "red";
+  if (statusSpan) statusSpan.innerText = "EYE-TRACKING INACTIVE";
+
+  isCalibrated = false; // Ensure tracking logic never fires
+}
+
 function acceptPrivacy() {
   document.getElementById("privacy-modal").classList.add("hidden");
   initEyeTracker(); // Start capture ONLY on consent
@@ -277,6 +295,9 @@ function acceptPrivacy() {
 }
 
 function toggleTracking() {
+  // Logic check: only allow toggle if tracking was actually calibrated
+  if (!isCalibrated) return;
+
   const statusDot = document.getElementById("status-dot");
   if (isPaused) {
     webgazer.resume();
