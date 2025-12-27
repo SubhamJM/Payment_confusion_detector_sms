@@ -160,19 +160,67 @@ function triggerSmartResponse(zoneId) {
 
 function showCustomPopup(zoneId, anchorElement) {
   if (document.querySelector(`.custom-popup[data-zone="${zoneId}"]`)) return;
+
   const popups = {
-    "zone-shipping": { title: "Shipping Hubs", body: "Check your saved addresses.", color: "blue", align: "side" },
-    "zone-payment": { title: "Payment Safety", body: "Encrypted via Clarity Guardian.", color: "indigo", align: "side" },
-    "zone-summary": { title: "Pricing Detail", body: "Includes carbon offsets.", color: "emerald", align: "bottom" },
-    "zone-items": { title: "Inventory", body: "Item ready for dispatch.", color: "amber", align: "side" },
+    "zone-shipping": {
+      title: "Need help with delivery?",
+      body: "Pick where you want your order sent. You can choose your saved Home or Office address. Don't worry, shipping is currently free!",
+      color: "blue",
+      align: "side"
+    },
+    "zone-payment": {
+      title: "Is your payment secure?",
+      body: "Yes! Your details are fully encrypted. Just select your preferred card or use Apple Pay to continue safely.",
+      color: "indigo",
+      align: "side"
+    },
+    "zone-summary": {
+      title: "Understanding the Total",
+      body: "The total includes the item price plus small fees for high-demand delivery and environmental offsets. We keep these transparent so there are no surprises.",
+      color: "emerald",
+      align: "bottom"
+    },
+    "zone-items": {
+      title: "Reviewing your cart?",
+      body: "You are purchasing 'The Clarity Guardian Pro'. It's currently in stock and will be ready to ship as soon as you finish.",
+      color: "amber",
+      align: "side"
+    },
   };
+
   const content = popups[zoneId];
   const popup = document.createElement("div");
-  popup.className = `custom-popup absolute z-[100] bg-white border-l-4 border-${content.color}-500 p-4 shadow-2xl rounded-r-xl w-64 text-left`;
+
+  // Use a slightly wider container (w-72) for the descriptive text
+  popup.className = `custom-popup absolute z-[100] bg-white border-l-4 border-${content.color}-500 p-5 shadow-2xl rounded-xl w-72 text-left`;
   popup.setAttribute("data-zone", zoneId);
-  if (content.align === "bottom") { popup.style.top = "100%"; popup.style.left = "0px"; popup.style.marginTop = "10px"; }
-  else { popup.style.top = "10px"; popup.style.right = "-270px"; }
-  popup.innerHTML = `<h4 class="text-xs font-bold uppercase mb-1">${content.title}</h4><p class="text-[10px] text-gray-600">${content.body}</p><button onclick="dismissPopup('${zoneId}', this.parentElement)" class="mt-2 text-[9px] font-bold text-${content.color}-600 uppercase hover:underline">Dismiss</button>`;
+
+  if (content.align === "bottom") {
+    popup.style.top = "100%";
+    popup.style.left = "0px";
+    popup.style.marginTop = "15px";
+  } else {
+    popup.style.top = "0px";
+    popup.style.right = "-300px";
+  }
+
+  popup.innerHTML = `
+    <div class="flex items-start gap-3">
+      <div class="mt-1">
+        <svg class="w-4 h-4 text-${content.color}-600" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+        </svg>
+      </div>
+      <div>
+        <h4 class="text-sm font-bold text-gray-900 mb-1">${content.title}</h4>
+        <p class="text-xs text-gray-600 leading-relaxed">${content.body}</p>
+        <button onclick="dismissPopup('${zoneId}', this.parentElement.parentElement.parentElement)" class="mt-3 text-[10px] font-bold text-${content.color}-600 uppercase tracking-wider hover:text-${content.color}-800">
+          Got it, thanks!
+        </button>
+      </div>
+    </div>
+  `;
+
   anchorElement.style.position = "relative";
   anchorElement.appendChild(popup);
 }
