@@ -24,7 +24,7 @@ A "Confusion Hotspot" is flagged when a specific UI zone records:
 
 2.  More than 3 revisits to the same area.
 
-3.  accade Strength > 15 (total distance > 6000 pixels).
+3.  Saccade Strength > 15 (total distance > 6000 pixels).
 
 ## 3. Key Features
 ### 👁️ Real-time Eye Tracking
