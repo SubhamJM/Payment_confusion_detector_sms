@@ -83,14 +83,11 @@ If confusion persists, the Gemini-powered chat provides immediate clarity.
     
     Bash
 
-    git clone https://github.com/your-username/clarity-guardian.git
-    cd clarity-guardian
+    git clone https://github.com/SubhamJM/Payment_confusion_detector_sms
 
 ### Launch the Application:
 
     VS Code Users: Right-click index.html and select "Open with Live Server".
-
-    Alternative: Run python -m http.server 8000 in your terminal and navigate to localhost:8000.
 
 ### Usage:
 
@@ -98,4 +95,4 @@ If confusion persists, the Gemini-powered chat provides immediate clarity.
 
 - Complete the 9-dot calibration (click each red dot 5 times until it turns green).
 
-- Stare at the "Regulatory Compliance" fee in the Order Summary for 5 seconds to trigger the AI response.
+- Stare at the any portion of webpage for 5 seconds to trigger the AI response.
