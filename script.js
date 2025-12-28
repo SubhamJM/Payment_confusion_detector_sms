@@ -14,7 +14,7 @@ let calibrationPoints = {};
 const CLICKS_PER_POINT = 5;
 
 // Gemini Configuration
-const GEMINI_API_KEY = "AIzaSyB4N720BULuGmRFEhfYACR7O6NikEKASzA"; // Replace with your key
+const GEMINI_API_KEY = "AIzaSyB4TE8R-VK4PWG53FCBB5_7GkYxHvTd_Hk"; // Replace with your key
 const GEMINI_MODEL = "gemini-2.0-flash-lite";
 
 // Tracking Variables
@@ -259,7 +259,7 @@ function showCustomPopup(zoneId, anchorElement) {
   popup.innerHTML = `
     <h4 class="text-sm font-bold text-gray-900 mb-1">${content.title}</h4>
     <p class="text-xs text-gray-600 leading-relaxed">${content.body}</p>
-    <button onclick="dismissPopup('${zoneId}', this.parentElement.parentElement)" class="mt-3 text-[10px] font-bold text-${content.color}-600 uppercase tracking-wider">Got it, thanks!</button>
+    <button onclick="dismissPopup('${zoneId}', this.closest('.custom-popup'))" class="mt-3 text-[10px] font-bold text-${content.color}-600 uppercase tracking-wider">Got it, thanks!</button>
   `;
 
   anchorElement.style.position = "relative";
@@ -270,7 +270,7 @@ function dismissPopup(zoneId, popupElement) {
   dismissedPopups.add(zoneId);
   const zoneElement = document.getElementById(zoneId);
   if (zoneElement) zoneElement.classList.remove("confusion-highlight");
-  popupElement.remove();
+  if (popupElement) popupElement.remove();
 }
 
 // --- CHATBOT UI & GEMINI API (RESTORED) ---
