@@ -249,7 +249,31 @@
             </p>
           </div>
         </div>
-
+        <div class="mb-6 border-t border-slate-100 pt-4">
+          <p class="text-[10px] font-bold text-slate-400 uppercase mb-3">
+            Time Breakdown
+          </p>
+          <div class="grid grid-cols-2 gap-3 text-xs text-slate-700">
+            <div class="flex justify-between bg-slate-50 p-2 rounded">
+              <span>Shipping:</span>
+              <span class="font-black"
+                ><span id="time-shipping">--</span>s</span
+              >
+            </div>
+            <div class="flex justify-between bg-slate-50 p-2 rounded">
+              <span>Payment:</span>
+              <span class="font-black"><span id="time-payment">--</span>s</span>
+            </div>
+            <div class="flex justify-between bg-slate-50 p-2 rounded">
+              <span>Review Items:</span>
+              <span class="font-black"><span id="time-items">--</span>s</span>
+            </div>
+            <div class="flex justify-between bg-slate-50 p-2 rounded">
+              <span>Summary:</span>
+              <span class="font-black"><span id="time-summary">--</span>s</span>
+            </div>
+          </div>
+        </div>
         <button
           onclick="restartTest()"
           class="w-full bg-slate-900 text-white font-bold py-3 rounded-xl hover:bg-slate-800 transition"
@@ -291,7 +315,7 @@
       };
 
       function renderDashboard(data) {
-        // Fill Metrics
+        // ... (existing code for totalTime, hovers, etc.) ...
         document.getElementById("metric-time").innerText =
           data.metrics.totalTime;
         document.getElementById("metric-hover").innerText =
@@ -302,6 +326,18 @@
           data.metrics.conversionRateBefore;
         document.getElementById("metric-after").innerText =
           data.metrics.conversionRateAfter;
+
+        // ADD THIS BLOCK:
+        if (data.metrics.sectionTimes) {
+          document.getElementById("time-shipping").innerText =
+            data.metrics.sectionTimes.shipping;
+          document.getElementById("time-payment").innerText =
+            data.metrics.sectionTimes.payment;
+          document.getElementById("time-items").innerText =
+            data.metrics.sectionTimes.items;
+          document.getElementById("time-summary").innerText =
+            data.metrics.sectionTimes.summary;
+        }
 
         // Draw Heatmap
         drawHeatmap(data.heatmapPoints);

@@ -14,8 +14,8 @@ let calibrationPoints = {};
 const CLICKS_PER_POINT = 5;
 
 // Gemini Configuration
-const GEMINI_API_KEY = "AIzaSyB4TE8R-VK4PWG53FCBB5_7GkYxHvTd_Hk"; // Replace with your key
-const GEMINI_MODEL = "gemini-2.0-flash-lite";
+const GEMINI_API_KEY = "AIzaSyBoLHlBLGDMmN5rK_erG3g25XezaTM3j6A"; // Replace with your key
+const GEMINI_MODEL = "gemini-2.5-flash-lite";
 
 // Tracking Variables
 let lastRawGaze = { x: 0, y: 0 };
@@ -354,43 +354,50 @@ async function initChat() {
     msgContainer.scrollTop = msgContainer.scrollHeight;
 
     try {
-      // 3. Prepare Gemini API Request
       const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
-      const payload = {
-        contents: [
-          {
-            parts: [
-              {
-                text: `System: Support for "FinnovateMarket". Context: Checkout for Clarity Guardian Pro ($89.99). Fees: Surge ($4.50), Compliance ($3.86), Carbon Offset ($0.75). User Message: ${userText}`,
-              },
-            ],
-          },
-        ],
-      };
 
       const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                {
+                  text: `System: Support for "FinnovateMarket". Context: Checkout for Clarity Guardian Pro ($89.99). Fees: Surge ($4.50), Compliance ($3.86), Carbon Offset ($0.75). User Message: ${userText}`,
+                },
+              ],
+            },
+          ],
+        }),
       });
+
       const data = await response.json();
 
-      // 4. Handle Response
+      // Check for API-level errors (e.g., 400, 403, 404)
+      if (!response.ok) {
+        console.error("Google API Error Details:", data);
+        throw new Error(data.error?.message || `API Error: ${response.status}`);
+      }
+
       const loadingEl = document.getElementById(loadingId);
-      if (loadingEl) {
-        if (data.candidates && data.candidates[0].content.parts[0].text) {
-          loadingEl.innerText = data.candidates[0].content.parts[0].text;
-          loadingEl.classList.remove("italic", "text-gray-400");
-          loadingEl.classList.add("text-slate-900");
-        } else {
-          throw new Error("Invalid response format");
-        }
+
+      // Safely check if the expected text exists in the response
+      if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+        loadingEl.innerText = data.candidates[0].content.parts[0].text;
+        loadingEl.classList.remove("italic", "text-gray-400");
+        loadingEl.classList.add("text-slate-900");
+      } else {
+        // Handle cases like safety filters blocking the response
+        console.warn("Response blocked or empty:", data);
+        loadingEl.innerText =
+          "I'm sorry, I can't answer that right now. How else can I help with your order?";
       }
     } catch (err) {
-      console.error("Gemini API Error:", err);
+      console.error("Chat Error:", err);
       const loadingEl = document.getElementById(loadingId);
       if (loadingEl)
-        loadingEl.innerText = "Error: Could not connect to assistant.";
+        loadingEl.innerText = "Connection error. Please try again.";
     }
     msgContainer.scrollTop = msgContainer.scrollHeight;
   };
@@ -476,6 +483,13 @@ function finishSession() {
       purchaseHovers: purchaseHoverCount,
       conversionRateBefore: withoutHelpRate + "%",
       conversionRateAfter: withHelpRate + "%",
+      // ADD THE FOLLOWING SECTION:
+      sectionTimes: {
+        shipping: zoneMetrics["zone-shipping"].dwellTime.toFixed(1),
+        payment: zoneMetrics["zone-payment"].dwellTime.toFixed(1),
+        items: zoneMetrics["zone-items"].dwellTime.toFixed(1),
+        summary: zoneMetrics["zone-summary"].dwellTime.toFixed(1),
+      },
     },
   };
 
