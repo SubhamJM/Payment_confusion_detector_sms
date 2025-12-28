@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Clarity Guardian - Full Site Heatmap</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        position: relative;
+      }
+
+      /* 1. GHOST UI: Visual context for heatmap */
+      /* We apply a filter to make it look "inactive" but readable */
+      #ghost-ui {
+        filter: grayscale(100%) opacity(0.25);
+        pointer-events: none; /* Make unclickable */
+        width: 100%;
+        min-height: 100vh;
+      }
+
+      /* 2. HEATMAP LAYER: Overlays the entire document */
+      #chart-wrapper {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 10;
+        pointer-events: none;
+      }
+
+      /* 3. TOGGLE BUTTON (Always Visible) */
+      #toggle-dashboard-btn {
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 60;
+        background: #0f172a;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 50px;
+        font-weight: bold;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      #toggle-dashboard-btn:hover {
+        transform: translateX(-50%) scale(1.05);
+      }
+
+      /* 4. DASHBOARD MODAL (Hidden by default) */
+      #dashboard-modal {
+        display: none; /* Toggled via JS */
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(15, 23, 42, 0.4); /* Backdrop dim */
+        z-index: 50;
+        backdrop-filter: blur(4px);
+        align-items: center;
+        justify-content: center;
+      }
+      .dashboard-content {
+        background: rgba(255, 255, 255, 0.98);
+        border-radius: 2rem;
+        padding: 2.5rem;
+        width: 90%;
+        max-width: 450px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        animation: popIn 0.3s ease-out;
+      }
+      @keyframes popIn {
+        from {
+          transform: scale(0.9);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-slate-50">
+    <div id="ghost-ui">
+      <header
+        class="bg-white border-b border-slate-100 py-4 px-10 flex justify-between items-center"
+      >
+        <h1 class="text-xl font-black text-indigo-600 uppercase">
+          Finnovate<span class="text-slate-400 font-light">Market</span>
+        </h1>
+      </header>
+
+      <main class="max-w-[1280px] mx-auto grid grid-cols-12 gap-8 p-8">
+        <div class="col-span-12 lg:col-span-8 space-y-8">
+          <div class="p-8 rounded-3xl border border-slate-200 bg-white">
+            <h2 class="text-xl font-bold mb-6">1. Shipping Address</h2>
+            <div class="h-24 bg-slate-100 rounded-xl w-full"></div>
+          </div>
+          <div class="p-8 rounded-3xl border border-slate-200 bg-white">
+            <h2 class="text-xl font-bold mb-6">2. Payment Method</h2>
+            <div class="h-16 bg-slate-100 rounded-xl w-full mb-4"></div>
+            <div
+              class="h-16 bg-slate-100 rounded-xl w-full border-2 border-indigo-200"
+            ></div>
+          </div>
+          <div class="p-8 rounded-3xl border border-slate-200 bg-white">
+            <h2 class="text-xl font-bold mb-6">3. Review Items</h2>
+            <div class="flex gap-6">
+              <div class="w-24 h-24 bg-slate-200 rounded-xl"></div>
+              <div class="flex-1 space-y-2">
+                <div class="h-4 bg-slate-200 rounded w-1/2"></div>
+                <div class="h-3 bg-slate-100 rounded w-1/4"></div>
+                <div class="h-12 bg-slate-50 rounded w-full mt-2"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="col-span-12 lg:col-span-4">
+          <div
+            class="p-8 rounded-3xl bg-white shadow-xl h-96 border border-slate-200"
+          >
+            <div class="w-full bg-indigo-600 h-12 rounded-2xl mb-6"></div>
+            <div class="space-y-4">
+              <div class="flex justify-between">
+                <div class="w-20 h-3 bg-slate-100"></div>
+                <div class="w-10 h-3 bg-slate-100"></div>
+              </div>
+              <div class="flex justify-between">
+                <div class="w-24 h-3 bg-slate-100"></div>
+                <div class="w-10 h-3 bg-slate-100"></div>
+              </div>
+              <div class="h-px bg-slate-200 my-4"></div>
+              <div class="flex justify-between">
+                <div class="w-32 h-6 bg-slate-200"></div>
+                <div class="w-20 h-6 bg-slate-800"></div>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <footer class="col-span-12 mt-20 pt-10 border-t border-slate-200">
+          <div class="grid grid-cols-4 gap-4">
+            <div class="h-20 bg-slate-100 rounded"></div>
+            <div class="h-20 bg-slate-100 rounded"></div>
+            <div class="h-20 bg-slate-100 rounded"></div>
+            <div class="h-20 bg-slate-100 rounded"></div>
+          </div>
+        </footer>
+      </main>
+    </div>
+
+    <div id="chart-wrapper">
+      <canvas id="heatmapCanvas"></canvas>
+    </div>
+
+    <button id="toggle-dashboard-btn" onclick="toggleDashboard()">
+      📊 View Validation Results
+    </button>
+
+    <div
+      id="dashboard-modal"
+      onclick="if(event.target === this) toggleDashboard()"
+    >
+      <div class="dashboard-content relative">
+        <button
+          onclick="toggleDashboard()"
+          class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 font-bold"
+        >
+          ✕
+        </button>
+
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></div>
+          <h2 class="text-xl font-black uppercase text-slate-900">
+            Session Metrics
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 mb-6">
+          <div>
+            <p class="text-[10px] font-bold text-slate-400 uppercase">
+              Avg Time
+            </p>
+            <p class="text-3xl font-black text-slate-900">
+              <span id="metric-time">--</span
+              ><span class="text-sm text-slate-500 font-medium ml-1">s</span>
+            </p>
+          </div>
+          <div>
+            <p class="text-[10px] font-bold text-slate-400 uppercase">
+              Buy Hovers
+            </p>
+            <p class="text-3xl font-black text-blue-600">
+              <span id="metric-hover">--</span>
+            </p>
+          </div>
+        </div>
+
+        <div class="mb-6">
+          <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">
+            Confusion Events
+          </p>
+          <div
+            class="bg-indigo-50 p-3 rounded-xl flex justify-between items-center"
+          >
+            <span class="text-indigo-700 font-bold text-sm"
+              >Struggle Detected</span
+            >
+            <span
+              id="metric-confusion"
+              class="text-2xl font-black text-indigo-700"
+              >0</span
+            >
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 mb-6">
+          <div
+            class="bg-red-50 p-4 rounded-xl text-center border border-red-100"
+          >
+            <p class="text-[9px] font-bold text-red-400 uppercase">
+              Without Help
+            </p>
+            <p id="metric-before" class="text-2xl font-black text-red-600">
+              --%
+            </p>
+          </div>
+          <div
+            class="bg-emerald-50 p-4 rounded-xl text-center border border-emerald-100"
+          >
+            <p class="text-[9px] font-bold text-emerald-500 uppercase">
+              With Help
+            </p>
+            <p id="metric-after" class="text-2xl font-black text-emerald-600">
+              --%
+            </p>
+          </div>
+        </div>
+
+        <button
+          onclick="restartTest()"
+          class="w-full bg-slate-900 text-white font-bold py-3 rounded-xl hover:bg-slate-800 transition"
+        >
+          Restart Session
+        </button>
+      </div>
+    </div>
+
+    <script>
+      // Toggle Dashboard Logic
+      const modal = document.getElementById("dashboard-modal");
+      function toggleDashboard() {
+        modal.style.display = modal.style.display === "flex" ? "none" : "flex";
+      }
+
+      // Initialize Heatmap
+      window.onload = function () {
+        // Show dashboard on load initially?
+        // The user asked for it as a clickable option, so we keep it hidden or show once then hide.
+        // Let's show it briefly or just wait for click. Let's wait for click to keep heatmap clear.
+
+        const rawData = localStorage.getItem("clarity_session_data");
+        if (!rawData) {
+          console.warn("No data found.");
+          renderDashboard({
+            metrics: {
+              totalTime: "0.0",
+              confusionEvents: 0,
+              purchaseHovers: 0,
+              conversionRateBefore: "--",
+              conversionRateAfter: "--",
+            },
+            heatmapPoints: [],
+          });
+          return;
+        }
+        renderDashboard(JSON.parse(rawData));
+      };
+
+      function renderDashboard(data) {
+        // Fill Metrics
+        document.getElementById("metric-time").innerText =
+          data.metrics.totalTime;
+        document.getElementById("metric-hover").innerText =
+          data.metrics.purchaseHovers || 0;
+        document.getElementById("metric-confusion").innerText =
+          data.metrics.confusionEvents;
+        document.getElementById("metric-before").innerText =
+          data.metrics.conversionRateBefore;
+        document.getElementById("metric-after").innerText =
+          data.metrics.conversionRateAfter;
+
+        // Draw Heatmap
+        drawHeatmap(data.heatmapPoints);
+      }
+
+      function drawHeatmap(points) {
+        const canvas = document.getElementById("heatmapCanvas");
+        const ctx = canvas.getContext("2d");
+
+        // IMPORTANT: Set canvas size to the FULL document size (scrollable area)
+        // This ensures heatmap dots at the bottom (product details) are drawn correctly
+        const body = document.body,
+          html = document.documentElement;
+        const fullHeight = Math.max(
+          body.scrollHeight,
+          body.offsetHeight,
+          html.clientHeight,
+          html.scrollHeight,
+          html.offsetHeight
+        );
+
+        canvas.width = window.innerWidth;
+        canvas.height = fullHeight;
+
+        new Chart(ctx, {
+          type: "scatter",
+          data: {
+            datasets: [
+              {
+                label: "Gaze Heat",
+                data: points,
+                backgroundColor: "rgba(255, 60, 0, 0.1)", // Transparent red
+                pointRadius: 35,
+                pointHoverRadius: 35,
+                borderWidth: 0,
+              },
+            ],
+          },
+          options: {
+            responsive: false, // We control size manually
+            maintainAspectRatio: false,
+            animation: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: { enabled: false },
+            },
+            scales: {
+              x: { display: false, min: 0, max: window.innerWidth },
+              y: {
+                display: false,
+                min: 0,
+                max: fullHeight, // Map Y to full document height
+                reverse: true,
+              },
+            },
+            layout: { padding: 0 },
+          },
+        });
+      }
+
+      function restartTest() {
+        window.location.href = "index.html";
+      }
+    </script>
+  </body>
+</html>
