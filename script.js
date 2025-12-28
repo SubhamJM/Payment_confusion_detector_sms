@@ -14,7 +14,7 @@ let calibrationPoints = {};
 const CLICKS_PER_POINT = 5;
 
 // Gemini Configuration
-const GEMINI_API_KEY = "AIzaSyBoLHlBLGDMmN5rK_erG3g25XezaTM3j6A"; // Replace with your key
+const GEMINI_API_KEY = "AIzaSyAojJvl1YajiLD4SBSLgJXMNuO_Rq6-KpI"; // Replace with your key
 const GEMINI_MODEL = "gemini-2.5-flash-lite";
 
 // Tracking Variables
